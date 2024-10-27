@@ -25,6 +25,7 @@ class BookController extends Controller
 
 
         $query = QueryBuilder::for(Book::class)
+            ->allowedIncludes('author')
             ->when(Auth::user()->role == UserRoleEnum::User, function ($q) {
                 $q->available();
             })
@@ -38,6 +39,8 @@ class BookController extends Controller
                 AllowedFilter::scope('created_at_to'),
                 AllowedFilter::scope('updated_at_from'),
                 AllowedFilter::scope('updated_at_to'),
+                AllowedFilter::scope('search'),
+                AllowedFilter::scope('author'),
             ])
             ->allowedSorts([
                 'id',
@@ -61,6 +64,8 @@ class BookController extends Controller
                 'filterable' => [
                     'title',
                     'author_id',
+                    'author',
+                    'search',
                     'year',
                     'isbn',
                     'created_at',

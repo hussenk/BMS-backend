@@ -39,4 +39,24 @@ class Book extends Model
     {
         return $query->where('is_available', true);
     }
+
+    public function scopeSearch($query, $data)
+    {
+        return $query->whereAny([
+            'title',
+            'author_id',
+            'year',
+            'isbn',
+
+        ], 'like', '%' . $data . '%')->orWhereHas(
+            'author',
+            function ($q) use ($data) {
+                $q->where('name', 'like', '%' . $data . '%');
+            }
+        );
+    }
+    public function scopeAuthor($query, $data)
+    {
+        return $query->where('author.name', 'like', '%' . $data . '%');
+    }
 }
