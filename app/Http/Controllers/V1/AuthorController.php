@@ -28,7 +28,7 @@ class AuthorController extends Controller
             ->orderBy('name', $request->order_by ?? 'asc');
 
         if ($request->has('per_page')) {
-            $data =  $query->pageant($request->per_page);
+            $data =  $query->paginate($request->per_page);
         } else {
             $data = $query->get();
         }

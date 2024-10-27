@@ -11,6 +11,8 @@ use App\Http\Resources\V1\BaseResource;
 use App\Http\Resources\V1\BooksResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class BookController extends Controller
 {
@@ -19,7 +21,64 @@ class BookController extends Controller
      */
     public function index(Request $request)
     {
-        //TODO: Search
+        $request->validate(['per_page' => 'numeric',]);
+
+
+        $query = QueryBuilder::for(Book::class)
+            ->when(Auth::user()->role == UserRoleEnum::User, function ($q) {
+                $q->available();
+            })
+            ->allowedFilters([
+                'title',
+                AllowedFilter::exact('author_id'),
+                AllowedFilter::exact('year'),
+                'isbn',
+                AllowedFilter::exact('is_available'),
+                AllowedFilter::scope('created_at_from'),
+                AllowedFilter::scope('created_at_to'),
+                AllowedFilter::scope('updated_at_from'),
+                AllowedFilter::scope('updated_at_to'),
+            ])
+            ->allowedSorts([
+                'id',
+                'title',
+                'author_id',
+                'year',
+                'isbn',
+                'created_at',
+                'updated_at',
+                'is_available',
+            ]);
+
+        if ($request->has('per_page')) {
+            $data =  $query->paginate($request->per_page);
+        } else {
+            $data = $query->get();
+        }
+
+        return BooksResource::collection($data)->additional([
+            "meta" => [
+                'filterable' => [
+                    'title',
+                    'author_id',
+                    'year',
+                    'isbn',
+                    'created_at',
+                    'updated_at',
+                    'is_available',
+                ],
+
+                'sortable' => [
+                    'title',
+                    'author_id',
+                    'year',
+                    'isbn',
+                    'created_at',
+                    'updated_at',
+                    'is_available',
+                ]
+            ]
+        ]);
     }
 
     /**
