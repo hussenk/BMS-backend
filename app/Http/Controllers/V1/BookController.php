@@ -8,8 +8,9 @@ use App\Models\Book;
 use App\Http\Requests\V1\StoreBookRequest;
 use App\Http\Requests\V1\UpdateBookRequest;
 use App\Http\Resources\V1\BaseResource;
-use Illuminate\Container\Attributes\Auth;
+use App\Http\Resources\V1\BooksResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
@@ -30,7 +31,7 @@ class BookController extends Controller
         $data =  Book::create($inputs);
 
         return response()->json([
-            'data' => BaseResource::make($data),
+            'data' => BooksResource::make($data),
             'message' => "Book created",
         ], 201);
     }
@@ -45,7 +46,7 @@ class BookController extends Controller
         })->findOrFail($id);
 
         return response()->json([
-            'data' => BaseResource::make($data),
+            'data' => BooksResource::make($data),
             'message' => "Book Show",
         ]);
     }
@@ -60,7 +61,7 @@ class BookController extends Controller
         $data = Book::findOrFail($id);
         $data->update($inputs);
         return response()->json([
-            'data' => BaseResource::make($data),
+            'data' => BooksResource::make($data),
             'message' => "Book Updated",
         ]);
     }
@@ -75,7 +76,7 @@ class BookController extends Controller
         $data = Book::findOrFail($id);
         $data->delete();
         return response()->json([
-            'data' => BaseResource::make($data),
+            'data' => BooksResource::make($data),
             'message' => "Book Deleted",
         ]);
     }
@@ -88,7 +89,7 @@ class BookController extends Controller
         $data->update(['is_available' => !$data->is_available]);
 
         return response()->json([
-            'data' => BaseResource::make($data),
+            'data' => BooksResource::make($data),
             'message' => "Book available Toggle",
         ]);
     }

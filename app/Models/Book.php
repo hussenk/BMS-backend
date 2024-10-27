@@ -22,7 +22,6 @@ class Book extends Model
 
     protected $casts = [
         'is_available' => 'boolean',
-        'year' => "datetime:Y"
     ];
 
     public function author(): BelongsTo

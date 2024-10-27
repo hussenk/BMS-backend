@@ -2,13 +2,9 @@
 
 use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\AuthorController;
+use App\Http\Controllers\V1\BookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
 
 
 Route::name('auth.')->prefix('auth')->controller(AuthController::class)->group(function ($route) {
@@ -20,4 +16,6 @@ Route::name('auth.')->prefix('auth')->controller(AuthController::class)->group(f
 
 Route::middleware('auth:sanctum')->group(function ($route) {
     Route::apiResource('authors', AuthorController::class);
+    Route::apiResource('books', BookController::class);
+    Route::put('books/{id}/available-toggle', [BookController::class, 'availableToggle']);
 });
