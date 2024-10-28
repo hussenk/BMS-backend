@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\V1;
 
-use App\Enums\OrderBy;
 use App\Http\Controllers\Controller;
 use App\Models\Author;
 use App\Http\Requests\V1\StoreAuthorRequest;
 use App\Http\Requests\V1\UpdateAuthorRequest;
 use App\Http\Resources\V1\BaseResource;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\Enum;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class AuthorController extends Controller
 {
@@ -18,14 +17,17 @@ class AuthorController extends Controller
      */
     public function index(Request $request)
     {
-        $request->validate([
-            'per_page' => 'numeric',
-            'order_by' => new Enum(OrderBy::class)
-        ]);
+        $request->validate(['per_page' => 'numeric',]);
 
-        $query = Author::query()
-
-            ->orderBy('name', $request->order_by ?? 'asc');
+        $query = QueryBuilder::for(Author::class)
+            ->allowedIncludes('author')
+            ->allowedFilters([
+                'name',
+            ])
+            ->allowedSorts([
+                'id',
+                'name',
+            ]);
 
         if ($request->has('per_page')) {
             $data =  $query->paginate($request->per_page);
@@ -33,7 +35,20 @@ class AuthorController extends Controller
             $data = $query->get();
         }
 
-        return  BaseResource::collection($data);
+        return BaseResource::collection($data)->additional([
+            "meta" => [
+                'filterable' => [
+                    'name',
+                ],
+
+                'sortable' => [
+                    'id',
+                    'name',
+                    'created_at',
+                    'updated_at',
+                ]
+            ]
+        ]);
     }
 
 
